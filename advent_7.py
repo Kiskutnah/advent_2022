@@ -1,60 +1,4 @@
-import time
-
-# #
-# class base_dir():
-#     # content:
-#     dir_name: str
-
-#     def __init__(self, dir_name: str):
-#         self.dir_name = dir_name
-#         self.content: dir_content = {}
-
-#     def cd(target:str):
-#         pass
-
-#     def ls():
-#         pass
-
-#     @property
-#     def folder_size(self):
-#         pass
-
-
-# class folder(base_dir):
-
-#     def __init__(self, dir_name: str):
-#         super().__init__(dir_name=dir_name)
-#         self.parent
-
-# dir_content = dict[str, folder]
-
-# class input_component(TypedDict):
-#     command: str
-#     target: str
-
-
-# class parser():
-
-#     current_dir: folder | base_dir
-
-#     def __init__(self, start_folder: str = "/"):
-#         self.current_folder = base_dir(start_folder)
-#         pass
-
-#     def parse_input(self, input: str):
-#         inputs =  input.split(" ")
-#         parsed_input: input_component = input_component(command=inputs[0], target=)
-
-
-#     def handle_cd(input: str):
-#         pass
-
-#     def handle_dir(input: str):
-#         pass
-
-#     def handle_ls(input:str):
-#         pass
-
+from functools import partial
 
 with open("advent_7.txt", "r") as f:
     d = f.read().splitlines()
@@ -171,39 +115,31 @@ for i in d:
 print("done loading file system")
 
 
-all_nums = []
-global last_called_dir
-last_called_dir = ""
-def check_part_one_criteria_on_dir(dir: folder):
-    global last_called_dir
-    # time.sleep(1)
-    print("*****")
-    print("")
-    print(f"LAST CALLED DIR IS {last_called_dir}")
-    print("")
-    print(f"READING SIZE FOR {dir.foldername}")
-    if dir.dir_size <= 100000:
+def get_full_file_path_for_folder(dir: folder, path="") -> str:
+
+    path = f"{path}/{dir.foldername}"
+
+    if dir.foldername == "/":
+        return path
+    else:
+        return get_full_file_path_for_folder(dir.parent, path)
+
+
+all_nums = {}
+def check_part_one_criteria_on_dir(dir: folder, filter_num:int):
+    if dir.dir_size <= filter_num:
         num = dir.dir_size
     else:
         num = 0
-    # time.sleep(1)
-    print("")
-    print(f"SIZE IS {num}")
     dir_list = []
     for i in dir.dirs:
         dir_list.append(dir.dirs[i])
-    
-    # time.sleep(1)
-    print("")
-    print(f"FOUND SUBDIRECTORIES: {dir_list}")
-    all_nums.append(num)
-    print("*****")
-    last_called_dir = dir.foldername
-    # time.sleep(1)
+    all_nums[get_full_file_path_for_folder(dir=dir, path="")] = num
     if len(dir_list) != 0:
-        print(f"FINDING SIZE FOR SUBDIRECTORIES")
-        list(map(check_part_one_criteria_on_dir, dir_list))
+        list(map(partial(check_part_one_criteria_on_dir, filter_num=filter_num), dir_list))
 
-check_part_one_criteria_on_dir(FS.system)
+check_part_one_criteria_on_dir(FS.system,100000)
+
+check_part_one_criteria_on_dir(FS.system,7000000000000)
 
 print(all_nums)
